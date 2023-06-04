@@ -1,16 +1,11 @@
-import { nanoid } from 'nanoid'
-import Answers from './Answers'
 
 export default function Question (props){
 
-    
 function decodeData(str){
     let txt = new DOMParser().parseFromString(str, "text/html")
+
     //ta bort textareat igen
     return txt.documentElement.textContent
-}
-
-
-  
-    return  <h1 className="question-text">{decodeData(props.item.question)}</h1>
+    }
+        return  <h1 className="question-text">{decodeData(props.item.question)}</h1>
     }

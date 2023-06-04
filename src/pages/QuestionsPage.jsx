@@ -2,6 +2,8 @@ import { useState, useEffect } from "react"
 import Question from "../Question"
 import { nanoid } from 'nanoid'
 import Answers from "../Answers"
+import { Link } from "react-router-dom";
+
 
 function Card({ children }) {
     return (
@@ -10,6 +12,7 @@ function Card({ children }) {
         </div>
     );
 }
+
   
 export default function QuestionsPage(){
     const [questions, setQuestions] = useState([])
@@ -17,8 +20,22 @@ export default function QuestionsPage(){
     const [quizzical, setQuizzical] = useState(false)
     const [checkedAnswers, setChekeckedAnswers] = useState([])
     const [errorMessege, setErrorMessege] = useState("")
-
+    const [loading, setLoading] = useState(false)
+    const [storedCategoryNum, setStoredCategoryNum] = useState(()=> {
+        const savedNum =localStorage.getItem("categoryValue")
+        const parsedItem = JSON.parse(savedNum)
+        return parsedItem || 0
+    })
+    const [storedDifficulty, setStoredDifficulty] = useState(()=> {
+        const savedDifficulty = localStorage.getItem("difficulty")
+        const parsedItem = JSON.parse(savedDifficulty)
+        return parsedItem || "medium"
+    })
+    
+ 
+    
     // HELPER
+
     function shuffleArray(array){
         var m = array.length, t, i
         while (m != 0){
@@ -32,12 +49,13 @@ export default function QuestionsPage(){
     
      // API-Call and set Questions Object
 
-    useEffect(()=>{
-        fetch("https://opentdb.com/api.php?amount=5&type=multiple")
+     useEffect(()=>{
+        setLoading(true)
+        fetch(`https://opentdb.com/api.php?amount=5&category=${storedCategoryNum}&difficulty=${storedDifficulty}&type=multiple`)
         .then(res => res.json())
         .then(data => buildQuestionSet(data.results))
     },[count])
-
+    
     function buildQuestionSet(apiResult){
         setQuestions(preQuestions => apiResult.map(item => { 
             const allAnswers = item.incorrect_answers.concat(item.correct_answer)
@@ -53,26 +71,45 @@ export default function QuestionsPage(){
                     isRightButNotChosen: false,
                 }
             })
+            setLoading(false)
             return {...item, 
                 allAnswers: allAnswersWithId
             }
          }))    
     }
-    
-     // To hold/check a answer on/off 
+   
+    if (loading) {
+        return <h1 className="Loading-text">Loading...</h1>
+    }
 
-    function holdAnswer(id){
-        setQuestions(oldQustions => oldQustions.map (item =>{
-            const allAnswers = item.allAnswers.map(item =>{
-                return  item.id === id ? 
-                { ...item,
-                    isHeld: !item.isHeld } : item
+    function questionContainsAnswer(question, heldAnswerId){
+        const checkedAnswers = question.allAnswers.filter(answer => {
+           return answer.id === heldAnswerId
+        })
+        return checkedAnswers.length !== 0
+    }
+
+    function holdAnswer(heldAnswerId){
+        
+        if (quizzical) {
+            return ""
+        }
+        setQuestions(oldQuestions => oldQuestions.map (question => {
+            if(questionContainsAnswer(question, heldAnswerId)){      
+                question.allAnswers = question.allAnswers.map(answer => {
+                    return {
+                        ...answer,
+                        isHeld: answer.id === heldAnswerId
+                    }
                 })
-            return {...item, allAnswers}
+            }
+            return question
         }))
     }
 
-    // When a answer is checked to set right and wrong
+ 
+
+    // When a answer is checked to set false/true
 
     function checkedAnswer(){
         setQuestions(oldQustions => oldQustions.map (item =>{
@@ -100,8 +137,8 @@ export default function QuestionsPage(){
         const holdAnswer = []
         const allAnswersGetArray = questions.map(answers =>{
             const allAnswersArray = answers.allAnswers.map(item => {
-                return item.isHeld ?
-                holdAnswer.push(item.answer): item
+               return item.isHeld ?
+                holdAnswer.push(item.answer) : item
                 })
             })
         return holdAnswer
@@ -157,9 +194,20 @@ export default function QuestionsPage(){
     }
 
     function setGreybackground(){
-        setQuestions(oldQustions => oldQustions.map (answers =>{
-            const allAnswers = answers.allAnswers.map(item =>{
+        setQuestions(oldQustions => oldQustions.map (answers => {
+            const allAnswers = answers.allAnswers.map(item => {
                 return  !item.isHeld ? 
+                        { ...item,
+                            isQuizzical: true } : item
+                        })
+            return {...answers, allAnswers}
+        }))
+    }
+
+    function setIsQuizzical(){
+        setQuestions(oldQustions => oldQustions.map (answers => {
+            const allAnswers = answers.allAnswers.map(item => {
+                return  item? 
                         { ...item,
                             isQuizzical: true } : item
                         })
@@ -170,21 +218,23 @@ export default function QuestionsPage(){
     // Check Answers from button and play againg
     
     function checkAnswers(){
-        const heldCount = checkHowManyIsHold()
+       const heldCount = checkHowManyIsHold()
         if (heldCount.length === 5){
             setQuizzical(true)
             filterCheckedAnswers()
             checkedAnswer()
-            setGreybackground()
+            setIsQuizzical()
+            // setGreybackground()
             filterCorrectAnwersNotChosen()
             setErrorMessege("")
-        } else setErrorMessege("You chose the wrong amount of answers") 
+        } else setErrorMessege("Oops! wrong amount, Try again!") 
     }
    
     function playAgain(){
         setQuizzical(false)
         setCount(prevCount => prevCount + 1)
     }
+
 
     return (
         <div className="question-page"  >
@@ -193,13 +243,15 @@ export default function QuestionsPage(){
                 questions.map(question =>{
                     return (
                         <Card key={nanoid()}>
-                            <Question item={question}/>
-                            <div  className= "answer-div">
+                            <Question item={question} 
+                                    checkHowManyIsHoldInAnswers={() => checkHowManyIsHoldInAnswers(question)}/>
+                            <div className= "answer-div">
                                 {question.allAnswers.map(answer =>{
                                     return <Answers
                                         key={nanoid()}
                                         content={answer}
                                         holdAnswer={() => holdAnswer(answer.id)}
+                                        
                                     />
                                 })}
                             </div>
@@ -209,9 +261,9 @@ export default function QuestionsPage(){
             }   
             </div>
             <div className="bottom">
-               {quizzical?  <p> You scored {checkedAnswers.length}/5 correct answers</p> : 
+               {quizzical?  <p> You Scored {checkedAnswers.length}/5 Correct Answers</p> : 
                  <p>{errorMessege}</p>}
-            {quizzical? <button onClick={playAgain}> Play again </button>: <button onClick={checkAnswers}>
+            {quizzical? <Link to="/" onClick={playAgain} className="styled-link"> Play again </Link>: <button className="check-answers-button" onClick={checkAnswers}>
                     Check answers
                 </button>} 
                 
