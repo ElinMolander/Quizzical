@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react"
-import Question from "../Question"
+import Question from "../components/Question"
 import { nanoid } from 'nanoid'
-import Answers from "../Answers"
+import Answers from "../components/Answers"
 import { Link } from "react-router-dom";
-
 
 function Card({ children }) {
     return (
@@ -13,7 +12,6 @@ function Card({ children }) {
     );
 }
 
-  
 export default function QuestionsPage(){
     const [questions, setQuestions] = useState([])
     const [count, setCount] = useState(0)
@@ -32,8 +30,6 @@ export default function QuestionsPage(){
         return parsedItem || "medium"
     })
     
- 
-    
     // HELPER
 
     function shuffleArray(array){
@@ -47,9 +43,7 @@ export default function QuestionsPage(){
         return array
     }
     
-     // API-Call and set Questions Object
-
-     useEffect(()=>{
+    useEffect(()=>{
         setLoading(true)
         fetch(`https://opentdb.com/api.php?amount=5&category=${storedCategoryNum}&difficulty=${storedDifficulty}&type=multiple`)
         .then(res => res.json())
@@ -90,7 +84,6 @@ export default function QuestionsPage(){
     }
 
     function holdAnswer(heldAnswerId){
-        
         if (quizzical) {
             return ""
         }
@@ -104,21 +97,6 @@ export default function QuestionsPage(){
                 })
             }
             return question
-        }))
-    }
-
- 
-
-    // When a answer is checked to set false/true
-
-    function checkedAnswer(){
-        setQuestions(oldQustions => oldQustions.map (item =>{
-            const allAnswers = item.allAnswers.map(item =>{
-                return  item.isHeld && item.answer? 
-                { ...item,
-                    isCheckedAnswer: !item.isCheckedAnswer } : item
-                })
-            return {...item, allAnswers}
         }))
     }
 
@@ -144,7 +122,6 @@ export default function QuestionsPage(){
         return holdAnswer
     }
 
-   
     function filterCheckedAnswers(){
         const allAnswersCollected = []
         const correctAnswers = questions.map(correctAnswer =>{
@@ -190,24 +167,12 @@ export default function QuestionsPage(){
                         })
             return {...answers, allAnswers}
         }))
-
-    }
-
-    function setGreybackground(){
-        setQuestions(oldQustions => oldQustions.map (answers => {
-            const allAnswers = answers.allAnswers.map(item => {
-                return  !item.isHeld ? 
-                        { ...item,
-                            isQuizzical: true } : item
-                        })
-            return {...answers, allAnswers}
-        }))
     }
 
     function setIsQuizzical(){
         setQuestions(oldQustions => oldQustions.map (answers => {
             const allAnswers = answers.allAnswers.map(item => {
-                return  item? 
+                return item? 
                         { ...item,
                             isQuizzical: true } : item
                         })
@@ -215,8 +180,6 @@ export default function QuestionsPage(){
         }))
     }
  
-    // Check Answers from button and play againg
-    
     function checkAnswers(){
        const heldCount = checkHowManyIsHold()
         if (heldCount.length === 5){
@@ -224,20 +187,29 @@ export default function QuestionsPage(){
             filterCheckedAnswers()
             checkedAnswer()
             setIsQuizzical()
-            // setGreybackground()
             filterCorrectAnwersNotChosen()
             setErrorMessege("")
         } else setErrorMessege("Oops! wrong amount, Try again!") 
     }
    
+    function checkedAnswer(){
+        setQuestions(oldQustions => oldQustions.map (item =>{
+            const allAnswers = item.allAnswers.map(item =>{
+                return  item.isHeld && item.answer? 
+                { ...item,
+                    isCheckedAnswer: !item.isCheckedAnswer } : item
+                })
+            return {...item, allAnswers}
+        }))
+    }
+
     function playAgain(){
         setQuizzical(false)
         setCount(prevCount => prevCount + 1)
     }
 
-
     return (
-        <div className="question-page"  >
+        <div className="question-page">
            <div className="all-questions-wraper">
             { 
                 questions.map(question =>{
@@ -251,7 +223,6 @@ export default function QuestionsPage(){
                                         key={nanoid()}
                                         content={answer}
                                         holdAnswer={() => holdAnswer(answer.id)}
-                                        
                                     />
                                 })}
                             </div>
@@ -263,12 +234,11 @@ export default function QuestionsPage(){
             <div className="bottom">
                {quizzical?  <p> You Scored {checkedAnswers.length}/5 Correct Answers</p> : 
                  <p>{errorMessege}</p>}
-            {quizzical? <Link to="/" onClick={playAgain} className="styled-link"> Play again </Link>: <button className="check-answers-button" onClick={checkAnswers}>
+                {quizzical? <Link to="/" onClick={playAgain} className="styled-link"> Play again </Link>: 
+                        <button className="check-answers-button" onClick={checkAnswers}>
                     Check answers
                 </button>} 
-                
             </div>
-           
         </div>
     ) 
 }

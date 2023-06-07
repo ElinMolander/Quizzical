@@ -1,6 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router-dom"
 import { useState } from "react"
-import { useEffect, useRef} from "react"
+import { useEffect, useRef } from "react"
 
 
 export default function IntroPage(){
@@ -55,9 +55,7 @@ export default function IntroPage(){
                     </select>
                 </div>
                 <Link to="/questions" className="styled-link" > Start quiz</Link>
-                
             </div>
         </div>
-    
     )
 }

@@ -3,24 +3,24 @@ import { nanoid } from 'nanoid'
 
 
 export default function Answers (props) {
-   
-        function decodeData(str){
-        let txt = new DOMParser().parseFromString(str, "text/html")
-        //ta bort textareat igen
-        return txt.documentElement.textContent
+   function decodeData(str){
+    let txt = new DOMParser().parseFromString(str, "text/html")
+    return txt.documentElement.textContent
     }
   
 
-  function mouseEnter(event) {
-    if (!props.content.isQuizzical) {
+    function mouseEnter(event) {
+        if (!props.content.isQuizzical) {
         event.currentTarget.style.background = "#D6DBF5"
-    } 
-   
-  }
-  function mouseLeave(event){
+        } 
+    }
+
+    function mouseLeave(event){
     if (!props.content.isQuizzical && props.content.isHeld) {
         event.currentTarget.style.background = "#D6DBF5"
-      } else {
+    } else if (props.content.isQuizzical){
+          return ""
+    } else {
         event.currentTarget.style.background = "none"
       }
    }
@@ -69,18 +69,18 @@ export default function Answers (props) {
     }
 
   
-return (
-    <div key={nanoid()} className="answer-holder" > 
-        <button
-            onClick={ props.holdAnswer } 
-            onMouseEnter={ mouseEnter }
-            onMouseLeave={ mouseLeave }
-            className="answer-question-button"
-            style={stylesWraper}
-        >
-            <p className="answer-text" style = {stylesText}>
-                {decodeData(props.content.answer)}</p>
-        </button>
-    </div>
-    )   
-}
+    return (
+        <div key={nanoid()} className="answer-holder" > 
+            <button
+                onClick={ props.holdAnswer } 
+                onMouseEnter={ mouseEnter }
+                onMouseLeave={ mouseLeave }
+                className="answer-question-button"
+                style={stylesWraper}
+            >
+                <p className="answer-text" style = { stylesText }>
+                    { decodeData(props.content.answer) }</p>
+            </button>
+        </div>
+        )   
+    }
