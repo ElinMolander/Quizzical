@@ -57,7 +57,7 @@ a {
 }
 
 a:active, a:visited {
-  color: #F5F7FB;
+  color: #ffffff;
 }
 
 .Loading-text {
@@ -134,7 +134,7 @@ a:active, a:visited {
     place-items: center;
     min-width: 5em;
     transition: all .25s;
-    background-color: #F5F7FB;
+    background-color: #ffffff;
   }
 
   .answer-holder {
@@ -182,7 +182,7 @@ a:active, a:visited {
     cursor: pointer;
     transition: all .25s ease ;
     margin: 1em;
-    color: #F5F7FB;
+    color: #ffffff;
   }
 
   .check-answers-button:hover {
@@ -195,7 +195,7 @@ a:active, a:visited {
   }
 
 .styled-link {
-  color:#F5F7FB;
+  color:#ffffff;
   background-color:#4D5B9E;
   padding:.5em 1em;
   font-size: 1.2em;
@@ -206,10 +206,10 @@ a:active, a:visited {
 
 .styled-link:hover {
   transform: scale(1.1,1.1);
-  color: #F5F7FB;
+  color: #ffffff;
 }
 .styled-link:active, .styled-link:visited {
-  color: #F5F7FB;
+  color: #ffffff;
 }
 
   /* SELECT- STYLED */
@@ -257,14 +257,14 @@ select::-ms-expand {
   width: 0.8em;
   height: 0.5em;
   margin: 1em;
-  color: #F5F7FB;
-  background-color: #F5F7FB;
+  color: #ffffff;
+  background-color: #ffffff;
   clip-path: polygon(100% 0%, 0 0%, 50% 100%);
   justify-self: end;
  } 
 
  .custom-select:active, .custom-select:visited {
-  color: #F5F7FB;
+  color: #ffffff;
 }
 
 select,
@@ -283,7 +283,7 @@ select:focus + .focus {
  }
 
 select:active, select:visited {
-  color: #F5F7FB;
+  color: #ffffff;
 }
 
   /* MEDIA QUERIES */

@@ -43,7 +43,7 @@ export default function Answers (props) {
             return "#D6DBF5"
         } else if(props.content.isRightButNotChosen){
             return "#fff"
-        }
+        } 
     }
 
     function getBorderColor() {
